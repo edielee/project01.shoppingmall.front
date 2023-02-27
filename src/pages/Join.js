@@ -1,11 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import oc from "open-color";
-import { shadow } from "../lib/styleUtil";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import InputWithLabel from "../Components/Input";
 import AuthButton from "../Components/Button";
 import Swal from "sweetalert2";
+import DaumPostcode from "react-daum-postcode";
+import "../post.css";
+import Post from "./Post";
 
 const Title = styled.div`
   font-size: 1.5rem;
@@ -48,6 +50,10 @@ function Join() {
   const [inputAdress, setInputAdress] = React.useState("");
   const [inputNumber, setInputNumber] = React.useState("");
   const [inputBirth, setInputBirth] = React.useState("");
+  const [enroll_company, setEnroll_company] = useState({
+    address: "",
+  });
+  const [popup, setPopup] = useState(false);
 
   const handleInputId = (e) => {
     setInputId(e.target.value);
@@ -59,8 +65,18 @@ function Join() {
     setInputName(e.target.value);
   };
   const handleInputAdress = (e) => {
+    console.log("target.value", e.target.value);
+    setEnroll_company({
+      ...enroll_company,
+      [e.target.name]: e.target.value,
+    });
     setInputAdress(e.target.value);
   };
+
+  const handleComplete = (data) => {
+    setPopup(!popup);
+  };
+
   const handleInputNumber = (e) => {
     setInputNumber(e.target.value);
   };
@@ -77,6 +93,9 @@ function Join() {
           id: inputId,
           pw: inputPw,
           name: inputName,
+          adress: inputAdress,
+          numbers: inputNumber,
+          birth: inputBirth,
         }),
       })
         .then((data) => data.text())
@@ -116,7 +135,7 @@ function Join() {
         html: "이름을 입력해주세요",
         icon: "error",
       });
-    } else if (inputAdress === "") {
+    } else if (inputAdress === "" && enroll_company === "") {
       Swal.fire({
         title: "경고",
         html: "주소를 입력해주세요",
@@ -148,7 +167,7 @@ function Join() {
     } else if (data === "실패") {
       Swal.fire({
         title: "실패",
-        html: "회원가입에 성공하였습니다. 관리자에게 문의해주세요.",
+        html: "회원가입에 실패하였습니다. 관리자에게 문의해주세요.",
         icon: "error",
       });
     }
@@ -189,8 +208,17 @@ function Join() {
               label="ADRESS"
               name="adress"
               placeholder="주소를 입력해주세요"
+              value={enroll_company.address}
               onChange={handleInputAdress}
             ></InputWithLabel>
+            {/* 우편번호 찾기를 클릭하면 주소찾기 화면의 노출여부를 변경해준다. */}
+            <button onClick={handleComplete}>우편번호 찾기</button>
+            {popup && (
+              <Post
+                company={enroll_company}
+                setcompany={setEnroll_company}
+              ></Post>
+            )}
             <InputWithLabel
               label="NUMBER"
               name="number"

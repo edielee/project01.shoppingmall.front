@@ -1,11 +1,13 @@
 import React from "react";
 import styled from "styled-components";
 import oc from "open-color";
-import { shadow } from "../lib/styleUtil";
 import { Link, useNavigate } from "react-router-dom";
 import InputWithLabel from "../Components/Input";
 import AuthButton from "../Components/Button";
 import Swal from "sweetalert2";
+import CryptoJS from "crypto-js";
+
+//axios.defaults.withCredentials = true;
 
 const Title = styled.div`
   font-size: 1.5rem;
@@ -41,7 +43,21 @@ const Wrapper = styled.div`
     margin-top: 1rem;
   }
 `;
+
+const A = styled.a`
+  text-decoration: none;
+`;
+
+//암호화
+export const encrypt = (val) => {
+  var ciphertext = CryptoJS.AES.encrypt(val, "secret key 123").toString();
+  return ciphertext;
+};
+
 function Login() {
+  const NAVER_ID = process.env.REACT_APP_NAVER_ID;
+  const NVAER_SECRET = process.env.REACT_APP_NVAER_SECRET;
+
   const [inputId, setInputId] = React.useState("");
   const [inputPw, setInputPw] = React.useState("");
 
@@ -50,7 +66,8 @@ function Login() {
   };
 
   const handleInputPw = (e) => {
-    setInputPw(e.target.value);
+    let lastpw = encrypt(e.target.value).toString();
+    setInputPw(lastpw);
   };
 
   async function postData() {
@@ -83,6 +100,8 @@ function Login() {
 
   const loginSubmit = async () => {
     let data = "";
+
+    console.log("inputPw", inputPw);
     if (inputId === "") {
       Swal.fire({
         title: "경고",
@@ -105,11 +124,8 @@ function Login() {
         html: "로그인에 성공하였습니다",
         icon: "success",
       });
-      sessionStorage.setItem("userId", inputId);
-      localStorage.setItem("id", data.id);
-      localStorage.setItem("pw", data.pw);
-      localStorage.setItem("name", data.name);
-      /*navigate("/");*/
+
+      navigate("/pages/Home");
     } else if (data.message === "로그인에 실패하였습니다.") {
       Swal.fire({
         title: "실패",
@@ -118,6 +134,13 @@ function Login() {
       });
     }
   };
+  const client_id = "_rDoCDO_oqjowZs5rmMm";
+  let naver_api_url =
+    "https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=" +
+    client_id +
+    "&redirect_uri=" +
+    encodeURI("http://localhost:8989/callback") +
+    "&state=1234";
 
   return (
     <Positioner>
@@ -140,6 +163,13 @@ function Login() {
             ></InputWithLabel>
             <AuthButton onClick={loginSubmit}>LOGIN</AuthButton>
             <AuthButton onClick={goJoin}>JOIN</AuthButton>
+            {/* 네이버에서 직접 등록한 애플리케이션 정보로(시크릿키/콜백URL) 네이버 로그인 인증을 요청합니다.
+                네이버에 요청하면, 로그인 화면 혹은 정보제공동의화면이 노출되고 로그인을 하여 정상유무 판단이 되면 콜백URL로 API 토큰발급 요청하게됨. 
+                //http://127.0.0.1:3000/pages/Login
+            */}
+            <A href={naver_api_url}>
+              <AuthButton>NAVER</AuthButton>
+            </A>
           </Wrapper>
         </Contents>
       </ShadowedBox>

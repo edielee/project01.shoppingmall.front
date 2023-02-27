@@ -8,7 +8,7 @@ const Wrapper = styled.div`
   padding-bottom: 0.5rem;
   width: 100%;
 
-  background: ${oc.yellow[6]};
+  background: ${oc.pink[6]};
   color: white;
 
   text-align: center;
