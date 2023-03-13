@@ -98,6 +98,15 @@ function Login() {
     navigate("/pages/Join");
   };
 
+  const gokakao = () => {
+    //카카오로그인 인가코드받기
+    const REST_API_KEY = "125918d406dfdfeea64d6683e17f1805";
+    const REDIRECT_URI = "http://localhost:8989/kakao";
+    const KAKAO_AUTH_URI = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
+
+    window.location.href = KAKAO_AUTH_URI; // url 주소 변경
+  };
+
   const loginSubmit = async () => {
     let data = "";
 
@@ -134,6 +143,8 @@ function Login() {
       });
     }
   };
+
+  //네이버 로그인
   const client_id = "_rDoCDO_oqjowZs5rmMm";
   let naver_api_url =
     "https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=" +
@@ -170,6 +181,7 @@ function Login() {
             <A href={naver_api_url}>
               <AuthButton>NAVER</AuthButton>
             </A>
+            <AuthButton onClick={gokakao}>KAKAO</AuthButton>
           </Wrapper>
         </Contents>
       </ShadowedBox>
